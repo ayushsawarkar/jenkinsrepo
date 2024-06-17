@@ -3,7 +3,7 @@ FROM nginx:latest
 
 # Copy your index.html to the NGINX html directory
 COPY index.html /usr/share/nginx/html/index.html
-
+RUN apt-get update
 # Expose port 80 to allow outside access
 EXPOSE 80
 
