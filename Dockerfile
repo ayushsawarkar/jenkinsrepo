@@ -1,10 +1,15 @@
-# Use the official NGINX image from DockerHub
-FROM nginx:latest
+# Flask app Dockerfile
+FROM python:3.9-slim
 
-# Copy your index.html to the NGINX html directory
-COPY index.html /usr/share/nginx/html/index.html
-# Expose port 80 to allow outside access
-EXPOSE 80
+WORKDIR /app
 
-# Start NGINX when the container launches
-CMD ["nginx", "-g", "daemon off;"]
+COPY . /app
+
+RUN pip install --no-cache-dir Flask
+
+EXPOSE 9000
+
+ENV FLASK_APP=app.py
+
+CMD ["flask", "run", "--host=0.0.0.0", "--port=9000"]
+
