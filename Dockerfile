@@ -11,5 +11,5 @@ EXPOSE 9000
 
 ENV FLASK_APP=app.py
 
-CMD ["flask", "run", "--host=0.0.0.0", "--port=9080"]
+CMD ["flask", "run", "--host=0.0.0.0", "--port=80"]
 
