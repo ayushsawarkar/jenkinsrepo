@@ -21,7 +21,7 @@ env:
   DUPLO_HOST: ${{ vars.DUPLO_HOST }}
   DUPLO_TOKEN: ${{ secrets.DUPLO_TOKEN }}
   # Images are usually stored in a dedicated tenant, so the name doesn't change
-  DUPLO_TENANT: devops
+  DUPLO_TENANT: ayushtnt
 
 jobs:
   build_image:
