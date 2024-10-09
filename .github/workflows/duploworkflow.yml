@@ -1,23 +1,51 @@
-name: My Workflow
-on: 
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: The environment to deploy to
-        type: environment
-        default: dev01
+name: Publish Image
+on:
+  # Triggers the workflow on push to matching branches
+  push:
+    branches:
+    - main
+  # (Optional) Allows users to trigger the workflow manually from the GitHub UI
+  workflow_dispatch: {}
+  # (Optional) Allow other workflows to use this workflow and its outputs
+  workflow_call: 
+    outputs:
+      image:
+        description: The URI of the image
+        value: ${{ jobs.build_image.outputs.image }}
+    secrets:
+      DUPLO_TOKEN:
+        description: The token to use for DuploCloud API calls
+        required: true
+
+env:
+  DUPLO_HOST: ${{ vars.DUPLO_HOST }}
+  DUPLO_TOKEN: ${{ secrets.DUPLO_TOKEN }}
+  # Images are usually stored in a dedicated tenant, so the name doesn't change
+  DUPLO_TENANT: devops
+
 jobs:
-  build:
+  build_image:
+    name: Build and Push Image
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ inputs.environment }}
-    env:
-      DUPLO_TOKEN: ${{ secrets.DUPLO_TOKEN }}
-      DUPLO_HOST: ${{ vars.DUPLO_HOST  }}
-      DUPLO_TENANT: ${{ inputs.environment }}
+    outputs:
+      image: ${{ steps.build_image.outputs.uri }}
     steps:
-    - name: Duplo Setup
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # Configures DuploCloud and the host cloud, for example, AWS
+    - name: Cloud CI Setup
       uses: duplocloud/actions/setup@v0.0.5
-      with: # These are only needed for GCP and Azure
-        account-id: ${{ vars.CLOUD_ACCOUNT }}
-        credentials: ${{ secrets.CLOUD_CREDENTIALS }}
+    
+    # logs into the registry, configures Docker, builds the image, and lastly pushes
+    - name: Build and Push Docker Image
+      id: build_image
+      uses: duplocloud/actions/build-image@v0.0.5
+      with:
+        platforms: linux/amd64,linux/arm64
+        push: true # false for dry runs
+        build-args: >
+          foo=bar
+          ice_cream=chocolate
+          name=${{ github.repository }}
